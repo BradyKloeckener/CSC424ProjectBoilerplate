@@ -1,0 +1,15 @@
+This version of rbp uses the latest packages as of 10/27/2020. In particular, it uses:
+
+"immer": "7.0.14",
+"react": "17.0.1",
+"react-dom": "17.0.1",
+"react-helmet": "6.1.0",
+"react-intl": "5.8.8",
+"react-redux": "7.2.2",
+"react-router-dom": "6.0.0-beta.0",
+"redis": "3.0.2",
+"redux": "4.0.5",
+"redux-saga": "1.1.3",
+"reselect": "4.0.0",
+"styled-components": "5.2.0",
+"webpack": "5.2.0",
