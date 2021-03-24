@@ -4,7 +4,7 @@
  * This is the first thing users see of our App, at the '/' route
  */
 
-import React, { useLayoutEffect, memo, Fragment, useState} from 'react';
+import React, { useEffect, memo, Fragment, useState} from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
@@ -46,10 +46,9 @@ export function OrgEventPage({
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
-  [state, setState] = useState({events: [], formShown: false, name: '', address: '', date: '', time: '', description: '', error: '', success: ''})
-  useLayoutEffect(() => {
+  const [state, setState] = useState({events: [], formShown: false, name: '', address: '', date: '', time: '', description: '', error: '', success: ''})
+  useEffect(() => {
   
-    console.log(org_id + MemberStatus)
     fetch('http://localhost:3000/getEvents', {
         method: "POST",
         headers: {
@@ -58,16 +57,16 @@ export function OrgEventPage({
         body: JSON.stringify({
             id: org_id
         })
-        .then(res => res.json())
-        .then(data => setState({...state, events: data}))
     })
+    .then(res => res.json())
+    .then(data => setState({...state, events: data}))
   }, []);
 
 
 
   const toggleform = ()=>{
 
-    setState({...data, formShown: !state.formShown})
+    setState({...state, formShown: !state.formShown})
 
   }
 
@@ -79,7 +78,7 @@ const submitForm = (e)=> {
             'Content-type': 'application/json'
         },
         body: JSON.stringify({
-            id: state.org_id, 
+            id: org_id, 
             name: state.name, 
             location: state.location,
             date: state.date,
@@ -89,12 +88,11 @@ const submitForm = (e)=> {
     })
     .then(res => res.json())
     .then(data => {
-        console.log('Got Data')
         if(data.error){
             setState({...state, error: data.error})
         }
         else if(data.success){
-            let newEvent = events.concat({name: state.name, address: state.address, date: state.date, time: state.time, description: state.description})
+            let newEvent = state.events.concat({name: state.name, address: state.address, date: state.date, time: state.time, description: state.description})
             setState({...state, events: newEvent, success: data.success})
 
         }
@@ -119,7 +117,7 @@ const submitForm = (e)=> {
     }
 
         let EventForm
-        if(formShown){
+        if(state.formShown){
 
             EventForm = (
             <form onSubmit = {submitForm}>
@@ -166,7 +164,7 @@ const submitForm = (e)=> {
 
     return(
         <div>
-            <h1> Events</h1>
+            <h2> Events</h2>
 
             {state.events.map((event) => (
 

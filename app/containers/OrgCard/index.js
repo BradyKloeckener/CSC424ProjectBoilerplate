@@ -33,6 +33,8 @@ import { makeSelectUsername } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import { makeSelectLoggedIn } from '../NavBar/selectors';
+import { Link } from 'react-router-dom'
+import '../css/OrgCard.css'
 
 const key = 'home';
 
@@ -52,7 +54,7 @@ export function OrgCard({
   }, []);
 
 
-  let path = '/organization/' + id
+  let path = '/organization/' + id + '/orgHome'
 
 
         return(
@@ -99,4 +101,4 @@ const withConnect = connect(
 export default compose(
   withConnect,
   memo,
-)(RenderOrgCards);
+)(OrgCard);

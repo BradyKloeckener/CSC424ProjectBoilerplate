@@ -30,7 +30,7 @@ import Section from './Section';
 import messages from './messages';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
-import { makeSelectUsername } from './selectors';
+import { makeSelectUsername, makeSelectLoggedIn } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -42,7 +42,7 @@ export function Event({
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
-  [state, setState] = useState({showContent: false})
+  const [state, setState] = useState({showContent: false})
  
   const toggleContent = ()=>{
 

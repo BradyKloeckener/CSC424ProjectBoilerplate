@@ -99,6 +99,8 @@ export function RegisterOrgPage({
  
 
      return(
+       <div>
+         <h2>Register Your Organization</h2>
          <form onSubmit = {handleSubmit} method="POST">
              <div className="formcontent">   
              
@@ -124,6 +126,7 @@ export function RegisterOrgPage({
              
              </div>
          </form>
+        </div>
      )
 }
 

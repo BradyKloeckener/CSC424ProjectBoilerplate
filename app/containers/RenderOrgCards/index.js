@@ -29,10 +29,11 @@ import Section from './Section';
 import messages from './messages';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
-import { makeSelectUsername } from './selectors';
+import { makeSelectUsername, makeSelectLoggedIn } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import OrgCard from 'containers/OrgCard/Loadable'
+
 
 const key = 'home';
 
@@ -73,10 +74,8 @@ export function RenderOrgCards({
 // };
 
 const mapStateToProps = createStructuredSelector({
-  repos: makeSelectRepos(),
-  username: makeSelectUsername(),
-  loading: makeSelectLoading(),
-  error: makeSelectError(),
+
+  loggedIn: makeSelectLoggedIn()
   
 });
 

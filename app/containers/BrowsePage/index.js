@@ -51,19 +51,17 @@ export function BrowsePage({
 
   useEffect(() => {
     // When initial state username is not null, submit the form to load repos
-    if (username && username.trim().length > 0) onSubmitForm();
+    
   }, []);
 
-  const reposListProps = {
-    loading,
-    error,
-    repos,
-  };
+
 
   return(
     <div className="browseOrgs">
 
+        <h2>Browse Organizations</h2>
         <input className="form-control mr-sm-2" type='search' id= 'searchBar' placeholder= 'Search'/>
+        
            
         <GetBrowseOrgs/>   
 

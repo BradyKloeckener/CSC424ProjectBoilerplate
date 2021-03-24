@@ -32,7 +32,8 @@ import { changeUsername, changeLoginStatus } from './actions';
 import { makeSelectUsername, makeSelectLoggedIn } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
+import '../css/MainNavBar.css'
 
 
 
@@ -49,7 +50,7 @@ export function NavBar({
   useEffect(() => {
     // When initial state username is not null, submit the form to load repos
     fetch('http://localhost:3000/checkIfloggedIn', {
-            method:'GET',
+            method:'POST',
             credentials: 'include'
         
         })
@@ -67,6 +68,21 @@ export function NavBar({
   }, []);
   
 
+  // const LogOut = () =>{
+
+  //   fetch('http://localhost:3000/clearCookie', {
+  //     method:'POST',
+  //     credentials: 'include'
+  
+  // })
+  // .then(data =>{
+  //   if(loggedIn === true){
+  //     changeLoginStatus()
+  //     return <Redirect to= '/'/>
+  //   }
+
+  // })
+  // }
 
 
       let activeLinks 
@@ -83,6 +99,7 @@ export function NavBar({
                      <Link to= '/profile'  className= 'navLink'>
                          <li> Your Profile </li>
                      </Link>
+                     {/* <li onClick= {LogOut} className= 'navLink'>Log Out</li> */}
             </Fragment>
         )}
         else{

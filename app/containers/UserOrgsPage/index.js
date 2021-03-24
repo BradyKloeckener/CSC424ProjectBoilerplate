@@ -54,7 +54,10 @@ export function UserOrgsPage({
 
 
   return(
-     <GetUserOrgs/>
+    <div>
+      <h2>Your Organizations</h2>
+      <GetUserOrgs/>
+    </div>
   )
 }
 

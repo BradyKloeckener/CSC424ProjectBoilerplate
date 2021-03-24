@@ -4,7 +4,7 @@
  * This is the first thing users see of our App, at the '/' route
  */
 
-import React, { useEffect, memo, Fragment, useState} from 'react';
+import React, { useLayoutEffect, memo, Fragment, useState} from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
@@ -34,6 +34,7 @@ import reducer from './reducer';
 import saga from './saga';
 import Redirect from 'react-router-dom'
 import '../App.css'
+import '../css/SignUp.css'
 
 
 
@@ -48,13 +49,15 @@ export function SignUpPage({
 
   const [state, setState] = useState({name: '',email:'', password: '', confirmPassword: '', error:''})
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // When initial state username is not null, submit the form to load repos
     fetch('http://localhost:3000/clearCookie',{
+      method: 'POST',
       credentials: 'include',
     })
     if(loggedIn === true){
       onChangeLoginStatus()
+
     }
   }, []);
 
@@ -111,7 +114,8 @@ const handleChange = (e) => {
 
 
     if(loggedIn){
-        return <Redirect to= '/'/>
+        // return <Redirect to= '/'/>
+        return <div>You signed up succesfully! Welcome! You can now join and create Organizations</div>
      }
 
      return(

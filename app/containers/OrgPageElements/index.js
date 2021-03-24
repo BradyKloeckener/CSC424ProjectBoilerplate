@@ -4,7 +4,7 @@
  * This is the first thing users see of our App, at the '/' route
  */
 
-import React, { useEffect, memo, Fragment, useState} from 'react';
+import React, { useLayoutEffect, memo, Fragment, useState} from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
@@ -32,12 +32,13 @@ import { changeUsername, changeLoginStatus } from './actions';
 import { makeSelectUsername, makeSelectLoggedIn } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import {Routes, Route, useParams} from 'react-router-dom'
+import {Routes, Route, useRouteMatch, useParams} from 'react-router-dom'
 import OrgNavBar from 'containers/OrgNavBar/Loadable'
 import OrgHomePage from 'containers/OrgHomePage/Loadable'
 import OrgAnnouncementPage from 'containers/OrgAnnouncementPage/Loadable'
 import OrgEventPage from 'containers/OrgEventPage/Loadable'
 import OrgMemberPage from 'containers/OrgMemberPage/Loadable'
+
 
 
 
@@ -52,30 +53,31 @@ export function OrgPageElements({
   useInjectSaga({ key, saga });
 
   const params = useParams()
-  console.log(params)
 
   const [state, setState] = useState({org_id: params.org_id, MemberStatus: 'NotDefined', error: ''})
-  useEffect(() => {
+
+  console.log('Org Page Elements: ' , state.org_id)
+
+  useLayoutEffect(() => {
   
     fetch('http://localhost:3000/checkMemberStatus', {
         
     method: 'POST',
     credentials: 'include',
-    body: JSON.stringify({id: state.org_id})
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({id: params.org_id})
 
     })
     .then(res => res.json())
     .then(data =>{
 
         if(data.error){
-
             setState({...state, error: data.error})
-            return
+        }else{
+          setState({...state, MemberStatus: data.status})
         }
-        setState({...state, MemberStatus: data.status})
-        console.log('Status updated')
-
-
 
 
     })
@@ -90,23 +92,38 @@ export function OrgPageElements({
         <div>
         
         <Routes>
-            <Route path= '/orgHome' element= {
-                <OrgHomePage org_id= {state.org_id} MemberStatus = {state.MemberStatus}/>
+            {/* <Route path= {'/organization/' + state.org_id + '/orgHome'} element={
+                <OrgHomePage org_id= {state.org_id} MemberStatus= {state.MemberStatus}/>
             } />
-            <Route path= '/announcements' element= {
-                <OrgAnnouncementPage org_id= {state.org_id} MemberStatus = {state.MemberStatus} />
+            <Route path= {'/organization/' + state.org_id + '/announcements'} element= {
+                <OrgAnnouncementPage org_id= {state.org_id} MemberStatus= {state.MemberStatus} />
             } />
-            <Route path ='/events' element= {
-                <OrgEventPage org_id= {state.org_id} MemberStatus = {state.MemberStatus}/>
+            <Route path ={'/organization/' + state.org_id + '/events'} element= {
+                <OrgEventPage org_id= {state.org_id} MemberStatus= {state.MemberStatus}/>
             }/>  
-            <Route path= '/members' element= {
-                <OrgMemberPage org_id= {state.org_id} MemberStatus = {state.MemberStatus}  />
-            } />
+            <Route path= {'/organization/' + state.org_id + '/members'} element= {
+                <OrgMemberPage org_id= {state.org_id} MemberStatus= {state.MemberStatus}  />
+            } /> */}
             {/* <Route path= '/chat' render= {(props) => (
                 <OrgChat {...props} org_id= {state.org_id} />
             )}/> */}
+
+            <Route path= '/orgHome' element={
+                <OrgHomePage org_id= {state.org_id} MemberStatus= {state.MemberStatus}/>
+            } />
+            <Route path= '/announcements' element= {
+                <OrgAnnouncementPage org_id= {state.org_id} MemberStatus= {state.MemberStatus} />
+            } />
+            <Route path ='/events' element= {
+                <OrgEventPage org_id= {state.org_id} MemberStatus= {state.MemberStatus}/>
+            }/>  
+            <Route path= '/members' element= {
+                <OrgMemberPage org_id= {state.org_id} MemberStatus= {state.MemberStatus}  />
+            } /> 
+            
         </Routes>
         </div>
+
     </div>
 
 )

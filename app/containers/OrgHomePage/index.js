@@ -33,6 +33,7 @@ import { makeSelectUsername, makeSelectLoggedIn } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import {Link } from 'react-router-dom'
+import { header } from 'express-validator';
 
 
 
@@ -44,9 +45,28 @@ export function OrgHomePage({
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
-  
+  const [state, setState]= useState({name: '', location: '', about: ''})
+
+  console.log('Org Home Page: ', org_id)
+
   useEffect(() => {
-    // When initial state username is not null, submit the form to load repos
+    fetch('http://localhost:3000/getOrgHome', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/jspm'
+        },
+        body: JSON.stringify({
+          id: org_id
+      })
+    })
+    .then(res => res.json())
+    .then(data =>{
+      if(!data.error){
+        setState({name: data.name, location: data.location, about: data.about})
+      }
+    
+    })
   }, []);
 
 
@@ -54,8 +74,11 @@ export function OrgHomePage({
 
   return(
     <div>
-        <h1> {org_id}</h1>
-        <h1>Your Organization Home Page</h1>
+        <h2>{state.name} Home Page</h2>
+
+        <h3>Location: {state.location} </h3>
+        <h3>About {state.name}:</h3>
+        <p>{state.about}</p>
     </div>
 
   )

@@ -1,0 +1,25 @@
+#OrgNav{
+    background-color: black;
+    padding: 0;
+    margin: 0;
+    }
+    ul{
+      display: flex;
+      padding: 10px;
+      margin: 10px;
+      list-style-type: none;
+    }
+    li {
+      display: inline;
+      float: left;
+    }
+    .OrgLink {
+  
+      display: block;
+      padding: 8px;
+      color: white;
+    }
+    .OrgLink:hover{
+      background-color: red;
+      color: white;
+    }

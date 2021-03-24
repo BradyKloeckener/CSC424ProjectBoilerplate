@@ -32,7 +32,7 @@ import { changeUsername, changeLoginStatus  } from './actions';
 import { makeSelectUsername, makeSelectLoggedIn } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import RenderOrgCards from 'containers/RenderOrgCards/Loadable'
+import RenderOrgCards from 'containers/RenderOrgCards/Loadable';
 
 
 const key = 'home';
@@ -51,7 +51,7 @@ export function GetBrowseOrgs({
   useEffect(() => {
 
     fetch('http://localhost:3000/getBrowseOrgs',{
-      method: 'GET',
+      method: 'POST',
     })
     .then(res => res.json())
     .then(data =>{

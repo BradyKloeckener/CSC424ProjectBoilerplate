@@ -4,8 +4,8 @@
  * This is the first thing users see of our App, at the '/' route
  */
 
-import React, { useEffect, memo, Fragment, useState} from 'react';
-import { Redirect } from 'react-router-dom'
+import React, { useLayoutEffect, memo, Fragment, useState} from 'react';
+import Redirect from 'react-router-dom'
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
@@ -30,16 +30,22 @@ export function LoginPage({
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
+
+
   const [state, setState] = useState({email: '', password: '', error: '', success: ''})
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // When initial state username is not null, submit the form to load repos
     fetch('http://localhost:3000/clearCookie',{
+      method: 'POST',
       credentials: 'include',
     })
-    if(loggedIn === true){
-      onChangeLoginStatus()
-    }
+    .then(() =>{
+      if(loggedIn === true){
+        onChangeLoginStatus()
+      }
+    })
+    
 
   }, []);
 
@@ -75,7 +81,8 @@ export function LoginPage({
         }
         else{
           onChangeLoginStatus()
-          setState({...state, success: true})
+          setState({...state, loggedIn: true, success: true})
+
         }
     })
 
@@ -102,7 +109,8 @@ const handleChange = (e) => {
 
 
 if(loggedIn){
-  return <Redirect to= '/'/> 
+//  return <Redirect to= '/'/> 
+return <div>Your Log In was succesful. You can now join and create Organizations</div>
 } 
 
 

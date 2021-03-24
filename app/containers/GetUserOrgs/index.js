@@ -48,7 +48,7 @@ export function GetUserOrgs({
 
   useEffect(() => {
 
-    fetch('http://localhost:3000/getUserOrgs',{method: 'GET'})
+    fetch('http://localhost:3000/getUserOrgs',{method: 'POST'})
         .then(res => res.json())
         .then(data =>{
             setState({...state, orgs: data})

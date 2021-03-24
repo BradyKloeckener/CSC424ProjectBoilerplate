@@ -30,14 +30,14 @@ import Section from './Section';
 import messages from './messages';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
-import { makeSelectUsername } from './selectors';
+import { makeSelectUsername, makeSelectLoggedIn } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
 const key = 'home';
 
 export function Member({
-  event
+  member
 }) {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });

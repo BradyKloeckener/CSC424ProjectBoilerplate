@@ -33,7 +33,10 @@ import { makeSelectUsername, makeSelectLoggedIn } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import { Link } from 'react-router-dom'
+
+
 import '../App.css'
+import '../css/OrgNavBar.css'
 
 
 
@@ -48,26 +51,25 @@ export function OrgNavBar({
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
-  //console.log(org_id + ' ' + MemberStatus)
-
   return(
     <nav id = 'OrgNav'>
         <ul>
-        <Link to= '/orgHome' className= 'OrgLink'>
+        <Link to= {'/organization/' + org_id + '/orgHome'} className= 'OrgLink'>
             <li> Organization Home </li>
         </Link>
-        <Link to= '/announcements' className= 'OrgLink'>
+        <Link to= {'/organization/' + org_id + '/announcements'} className= 'OrgLink'>
             <li> Announcements </li>
         </Link>
-        <Link to= '/events' className= 'OrgLink'>
+        <Link to={'/organization/' + org_id + '/events'} className= 'OrgLink'>
             <li> Events </li>
         </Link>
-        <Link to= '/members'  className= 'OrgLink'>
+        <Link to= {'/organization/' + org_id + '/members'} className= 'OrgLink'>
             <li> Members</li>
         </Link>
         {/* <Link to= '/chat' className= 'OrgLink'>
             <li> Chat</li>
         </Link> */}
+
     </ul>
   </nav>
 )

@@ -4,7 +4,7 @@
  * This is the first thing users see of our App, at the '/' route
  */
 
-import React, { useLayoutEffect, memo, Fragment, useState} from 'react';
+import React, { useEffect, memo, Fragment, useState} from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
@@ -46,8 +46,8 @@ export function OrgAnnouncementPage({
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
-  [state, setState] = useState({org_id: org_id, announcements: [], formShown: false, title: '', content: '', error:''})
-  useLayoutEffect(() => {
+  const [state, setState] = useState({org_id: org_id, announcements: [], formShown: false, title: '', content: '', error:''})
+  useEffect(() => {
   
     fetch('http://localhost:3000/getAnnouncements', {
         method: "POST",
@@ -57,16 +57,16 @@ export function OrgAnnouncementPage({
         body: JSON.stringify({
             id: org_id
         })
-        .then(res => res.json())
-        .then(data => setState({...state, announcements: data}))
     })
+    .then(res => res.json())
+    .then(data => setState({...state, announcements: data}))
   }, []);
 
 
 
   const toggleform = ()=>{
 
-    setState({...data, formShown: !state.formShown})
+    setState({...state, formShown: !state.formShown})
 
   }
 
@@ -140,12 +140,12 @@ const submitForm = (e)=> {
     return(
         <div>
             
-            <h1>Annoucements</h1>
+            <h2>Annoucements</h2>
 
             {state.announcements.map((announcement) => (
 
                 <div key= {announcement.title}>
-                    <Annoucement announcement={announcement}/>
+                    <Announcement announcement={announcement}/>
                 </div>
 
     ))}

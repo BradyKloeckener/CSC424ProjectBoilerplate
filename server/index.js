@@ -20,6 +20,9 @@ const ngrok =
     ? require('ngrok')
     : false;
 const { resolve } = require('path');
+const { element } = require('prop-types');
+const { stat } = require('fs');
+const { find } = require('./models/user.model');
 const app = express();
 
 // If you need a backend, e.g. an API, add your custom backend-specific middleware here
@@ -87,7 +90,7 @@ mongoose.connection.on('connected', ()=> {
     const clearCookie = (req,res)=>{
 
         res.clearCookie('currentUser')
-        return res.sendStatus(200).send('cookie Cleared')
+        res.send({response: 'cookie cleared'})
     }
 
     const authenticateUser =(req, res)=>{
@@ -119,7 +122,7 @@ mongoose.connection.on('connected', ()=> {
                 if(match){
                     
                     res.cookie('currentUser', user.email,{
-                        maxAge: 60*60*100,
+                        maxAge: 6000*1000,
                         httpOnly: true,
                         //secure: true,
                         sameSite: true,
@@ -176,7 +179,7 @@ mongoose.connection.on('connected', ()=> {
                             }
                             console.log('User added to Database')
                             res.cookie('currentUser', newUser.email,{
-                                maxAge: 60*60*100,
+                                maxAge: 6000 * 10000 ,
                                 httpOnly: true,
                                 //secure: true,
                                 sameSite: true,
@@ -228,7 +231,7 @@ mongoose.connection.on('connected', ()=> {
     }
     const getAllOrgs = (req,res) => {
 
-      console.log('getting Orgs')
+
 
         const query = Organization.find({}).select('name location') 
     
@@ -243,35 +246,26 @@ mongoose.connection.on('connected', ()=> {
         })
     }
 
-    const getUserOrgs = (req, res)=>{
+    const getUserOrgs = async (req, res)=>{
 
-        
 
         const query = User.findOne({email: req.cookies.currentUser}).select('OrganizationsJoined') 
         
-        query.exec((err,result)=>{
+        query.exec(async (err,result)=>{
             if(err){
                 console.log(err)
             }else{
 
                 let userOrgs = []
-                result.OrganizationsJoined.forEach(element => {
 
-                    
-                    const FindOrg =  Organization.findOne({_id: element.org_id}).select('name location ')
-                    FindOrg.exec((err, data)=>{
+                for(let i = 0; i < result.OrganizationsJoined.length; i++){
 
-                        if(err){
-                            console.log(err)
-                        }else{
-                            userOrgs.push(data)
-                        }
+                  let findOrg = Organization.findOne({_id: result.OrganizationsJoined[i].org_id}).select('name location ')
+                  let org = await  findOrg.exec()
 
-                    })
-                
+                    userOrgs.push(org)
 
-                    
-                });
+                }
                 res.send(userOrgs)
             }
         
@@ -368,38 +362,57 @@ mongoose.connection.on('connected', ()=> {
 
       let id = req.body.id
       let user_email = req.cookies.currentUser
-
+      let status
 
       if(!user_email){
-        res.send({status: 'None'})
+        status = 'No User'
+        res.send({status: status})
         return
       }
       let query = Organization.findOne({_id: id}).select('members')
 
-      query.exec((err, members)=>{
+    
+      query.exec((err, org)=>{
 
         if(err){
 
           console.log(err)
+          console.log('Error in member status')
           res.send({error:'Internal Server Error'})
           return
         }
-        members.findOne({user_email: user_email}, (err, member)=>{
+        org.members.forEach(element =>{
 
-          if(err){
-            console.log(err)
-            res.send({error: 'Internal Server Error'})
-            return
-          }
-          res.send({status: member.status})
+            if(err){
+                console.log(err)
+            }
 
+            if(element.user_email == user_email){
+                status = element.status
+                res.send({status: status})
+                return
+
+            }
         })
+        if(!status){
+            status = 'None'
+            res.send({status: status})
+        }
+
       })
+    }
+    const getOrgHome =(req, res)=>{
+        const id = req.body.id
+        console.log('req.body: ', req.body)
+        let query = Organization.findOne({_id: id}).select('name location about')
 
-      
-
-      
-
+        query.exec((err, org)=>{
+            if(err){
+                console.log(err)
+                res.send({error: 'Internal Server Erro'})
+            }
+            res.send(org)
+        })
 
     }
     // app.get('/',(req, res)=>{ 
@@ -407,8 +420,8 @@ mongoose.connection.on('connected', ()=> {
     //     res.sendFile(path.join(__dirname, 'build', 'index.html'))
     // })
 
-    app.get('/checkIfloggedIn', checkLoginStatus)
-    app.get('/clearCookie', clearCookie)
+    app.post('/checkIfloggedIn', checkLoginStatus)
+    app.post('/clearCookie', clearCookie)
     app.post('/loginSubmit',[ 
         validator.check('email').isEmail().normalizeEmail().trim().escape(),
         validator.check('password').isLength({min: 8}).trim().escape()
@@ -431,8 +444,8 @@ mongoose.connection.on('connected', ()=> {
     ], createOrg)
     
     
-    app.get('/getBrowseOrgs', getAllOrgs)
-    app.get('/getUserOrgs', getUserOrgs )
+    app.post('/getBrowseOrgs', getAllOrgs)
+    app.post('/getUserOrgs', getUserOrgs )
 
     // app.post('/getOrganizationData',[
     //     validator.check('id').trim().escape()
@@ -453,8 +466,9 @@ mongoose.connection.on('connected', ()=> {
     ], createEvent)
 
 
-    app.post('/checkMemberStatus', [validator.check('id').trim().escape()], getMemberStatus)
-    app.post('/getEvemts', [validator.check('id').trim().escape()], getEvents)
+    app.post('/checkMemberStatus', getMemberStatus)
+    app.post('/getOrgHome', [validator.check('id').trim().escape()], getOrgHome)
+    app.post('/getEvents', [validator.check('id').trim().escape()], getEvents)
     app.post('/getAnnouncements', [validator.check('id').trim().escape()], getAnnouncements)
     app.post('/getMembers', [validator.check('id').trim().escape()], getMembers)
 

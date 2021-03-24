@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { Route, Routes} from 'react-router-dom';
+import { BrowserRouter, Route, Routes} from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
 import HomePage from 'containers/HomePage/Loadable';
@@ -48,14 +48,15 @@ export default function App() {
       </Helmet>
       <NavBar/>
       <Routes>
-          <Route path= '/' exact element= {<HomePage/>} /> 
+          <Route exact path= '/' exact element= {<HomePage/>} /> 
           <Route path= '/orgs' element= {<UserOrgsPage/>} />
           <Route path= '/registerOrg' element= {<RegisterOrgPage/>} />
           <Route path= '/profile' element= {<UserProfile/>} /> 
           <Route path= '/browse' element= {<BrowsePage/>} /> 
           <Route path= '/login' element= {<LoginPage/>} /> 
           <Route path= '/signup' element= {<SignUpPage/>} /> 
-          <Route path= '/organization/:org_id' element= {<OrgPageElements/>} /> 
+          <Route exact path= '/organization/:org_id/*' element= {<OrgPageElements/>} /> 
+          
       </Routes>
       <GlobalStyle />
     </AppWrapper>

@@ -4,7 +4,7 @@
  * This is the first thing users see of our App, at the '/' route
  */
 
-import React, { useLayoutEffect, memo, Fragment, useState} from 'react';
+import React, { useEffect, memo, Fragment, useState} from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
@@ -43,8 +43,8 @@ export function OrgMemberPage({ org_id }) {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
-  [state, setState] = useState({members: [] , isOrgLeader: true})
-  useLayoutEffect(() => {
+  const [state, setState] = useState({members: [] , isOrgLeader: true})
+  useEffect(() => {
   
     fetch('http://localhost:3000/getMembers', {
         method: "POST",
@@ -54,16 +54,16 @@ export function OrgMemberPage({ org_id }) {
         body: JSON.stringify({
             id: org_id
         })
-        .then(res => res.json())
-        .then(data => setState({...state, members: data}))
-    })
+      })
+    .then(res => res.json())
+    .then(data => setState({...state, members: data}))
   }, []);
 
 
 
     return(
         <div>
-            <h1> Members</h1>
+            <h2> Members</h2>
 
             {state.members.map((member) => (
 
@@ -90,10 +90,7 @@ export function OrgMemberPage({ org_id }) {
 // };
 
 const mapStateToProps = createStructuredSelector({
-  repos: makeSelectRepos(),
-  username: makeSelectUsername(),
-  loading: makeSelectLoading(),
-  error: makeSelectError(),
+
   loggedIn: makeSelectLoggedIn()
 });
 
