@@ -46,4 +46,13 @@ export const changeLoginStatus = ()=>{
   })
 }
 
+export const setMemberStatus = (MemberStatus)=>{
+
+   
+  return({
+      type: 'SET_MEMBER_STATUS',
+      MemberStatus,
+  })
+}
+
 //export default changeLoginStatus

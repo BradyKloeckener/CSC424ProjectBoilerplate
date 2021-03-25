@@ -391,7 +391,6 @@ mongoose.connection.on('connected', ()=> {
                 status = element.status
                 res.send({status: status})
                 return
-
             }
         })
         if(!status){
@@ -414,6 +413,29 @@ mongoose.connection.on('connected', ()=> {
             res.send(org)
         })
 
+    }
+    const joinOrg = (req,res)=>{
+        const id = req.body.id
+        const user_email = req.cookies.currentUser
+        
+        Organization.findByIdAndUpdate({_id: id},
+            {'$push': {members: {user_email: user_email, status: 'Member'}}}, (err)=>{
+
+                if(err){
+                    console.log(err)
+                    res.send({error:'Could not join Organization'})
+                }else{
+                    User.findOneAndUpdate({email: user_email}, 
+                        {'$push': {OrganizationsJoined:{org_id: id }}}, (err)=>{
+                            if(err){
+                                console.log(err)
+                                res.send({error: 'Could not add organization to your Organizations'})
+                            }
+                            res.send({success: 'Joined Organization'})
+                        })
+                }
+               
+            })
     }
     // app.get('/',(req, res)=>{ 
         
@@ -471,6 +493,8 @@ mongoose.connection.on('connected', ()=> {
     app.post('/getEvents', [validator.check('id').trim().escape()], getEvents)
     app.post('/getAnnouncements', [validator.check('id').trim().escape()], getAnnouncements)
     app.post('/getMembers', [validator.check('id').trim().escape()], getMembers)
+
+    app.post('/onJoinOrg', [validator.check('id').trim().escape()], joinOrg)
 
 
     // app.get('/', (req, res)=>{

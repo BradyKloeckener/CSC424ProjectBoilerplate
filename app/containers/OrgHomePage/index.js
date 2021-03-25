@@ -28,26 +28,28 @@ import Input from './Input';
 import Section from './Section';
 import messages from './messages';
 import { loadRepos } from '../App/actions';
-import { changeUsername, changeLoginStatus } from './actions';
-import { makeSelectUsername, makeSelectLoggedIn } from './selectors';
+import { changeUsername, changeLoginStatus, makeMember } from './actions';
+import { makeSelectUsername, makeSelectLoggedIn, makeSelectMemberStatus } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import {Link } from 'react-router-dom'
 import { header } from 'express-validator';
+import { join } from 'bluebird';
 
 
 
 const key = 'home';
 
 export function OrgHomePage({
- org_id
+ org_id,
+ MemberStatus,
+ onMakeMember
 }) {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
-  const [state, setState]= useState({name: '', location: '', about: ''})
 
-  console.log('Org Home Page: ', org_id)
+  const [state, setState]= useState({name: '', location: '', about: '', error: '', success: ''})
 
   useEffect(() => {
     fetch('http://localhost:3000/getOrgHome', {
@@ -65,12 +67,52 @@ export function OrgHomePage({
       if(!data.error){
         setState({name: data.name, location: data.location, about: data.about})
       }
-    
     })
   }, []);
 
 
 
+  const joinOrg = (e)=>{
+
+    e.preventDefault()
+    fetch('http://localhost:3000/onJoinOrg', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({id: org_id,})
+    })
+    .then(res => res.json())
+    .then(data => {
+      if(data.error){
+        setState({...state, error: data.error})
+      }else{
+        setState({...state, success: 'You have successfully joined this organization'})
+        onMakeMember()
+      }
+    })
+    
+  }
+
+
+let joinButton
+// useEffect(() =>{
+ 
+
+  if(MemberStatus === 'No User'){
+    joinButton = <p>You must be logged In to join the organization</p>
+  }
+  else if(MemberStatus === 'None'){
+
+    joinButton = <button onClick={joinOrg} className= 'btn btn-primary'> Join Organization</button>
+  }
+  else if(MemberStatus === 'Member' || MemberStatus === 'Leader'){
+    joinButton = <p> You are a part of this Organization</p>
+  }
+// }, [MemberStatus])
+
+  
 
   return(
     <div>
@@ -79,6 +121,9 @@ export function OrgHomePage({
         <h3>Location: {state.location} </h3>
         <h3>About {state.name}:</h3>
         <p>{state.about}</p>
+        {joinButton}
+        <p>{state.error}</p>
+        <p>{state.success}</p>
     </div>
 
   )
@@ -96,17 +141,15 @@ export function OrgHomePage({
 // };
 
 const mapStateToProps = createStructuredSelector({
-  repos: makeSelectRepos(),
-  username: makeSelectUsername(),
-  loading: makeSelectLoading(),
-  error: makeSelectError(),
-  loggedIn: makeSelectLoggedIn()
+  loggedIn: makeSelectLoggedIn(),
+  MemberStatus: makeSelectMemberStatus(),
 });
 
 export function mapDispatchToProps(dispatch) {
   return {
 
     onChangeLoginStatus: () => dispatch(changeLoginStatus()),
+    onMakeMember: () => dispatch(makeMember())
 
   };
 }

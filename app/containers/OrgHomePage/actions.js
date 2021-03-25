@@ -45,5 +45,11 @@ export const changeLoginStatus = ()=>{
       type: 'CHANGE_LOGIN_STATUS',
   })
 }
+export const makeMember = () =>{
+
+  return({
+    type: 'MAKE_MEMBER',
+  })
+}
 
 //export default changeLoginStatus

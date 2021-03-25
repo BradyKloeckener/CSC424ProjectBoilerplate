@@ -4,7 +4,7 @@
  * This is the first thing users see of our App, at the '/' route
  */
 
-import React, { useLayoutEffect, memo, Fragment, useState} from 'react';
+import React, { useEffect, memo, Fragment, useState} from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
@@ -28,8 +28,8 @@ import Input from './Input';
 import Section from './Section';
 import messages from './messages';
 import { loadRepos } from '../App/actions';
-import { changeUsername, changeLoginStatus } from './actions';
-import { makeSelectUsername, makeSelectLoggedIn } from './selectors';
+import { changeUsername, changeLoginStatus, setMemberStatus } from './actions';
+import { makeSelectUsername, makeSelectLoggedIn, makeSelectMemberStatus } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import {Routes, Route, useRouteMatch, useParams} from 'react-router-dom'
@@ -44,21 +44,23 @@ import OrgMemberPage from 'containers/OrgMemberPage/Loadable'
 
 
 
+
 const key = 'home';
 
 export function OrgPageElements({
     loggedIn,
+    MemberStatus,
+    onSetMemeberStatus
 }) {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
   const params = useParams()
 
-  const [state, setState] = useState({org_id: params.org_id, MemberStatus: 'NotDefined', error: ''})
+  const [state, setState] = useState({org_id: params.org_id, error: ''})
 
-  console.log('Org Page Elements: ' , state.org_id)
 
-  useLayoutEffect(() => {
+  useEffect(() => {
   
     fetch('http://localhost:3000/checkMemberStatus', {
         
@@ -67,7 +69,7 @@ export function OrgPageElements({
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({id: params.org_id})
+    body: JSON.stringify({id: state.org_id})
 
     })
     .then(res => res.json())
@@ -76,49 +78,33 @@ export function OrgPageElements({
         if(data.error){
             setState({...state, error: data.error})
         }else{
-          setState({...state, MemberStatus: data.status})
+          onSetMemeberStatus(data.status)
         }
 
 
     })
 
    
-  }, []);
+  }, [MemberStatus]);
 
 
   return(
     <div>
-        <OrgNavBar org_id = {state.org_id} MemberStatus = {state.MemberStatus} />
+        <OrgNavBar org_id = {state.org_id} />
         <div>
         
         <Routes>
-            {/* <Route path= {'/organization/' + state.org_id + '/orgHome'} element={
-                <OrgHomePage org_id= {state.org_id} MemberStatus= {state.MemberStatus}/>
-            } />
-            <Route path= {'/organization/' + state.org_id + '/announcements'} element= {
-                <OrgAnnouncementPage org_id= {state.org_id} MemberStatus= {state.MemberStatus} />
-            } />
-            <Route path ={'/organization/' + state.org_id + '/events'} element= {
-                <OrgEventPage org_id= {state.org_id} MemberStatus= {state.MemberStatus}/>
-            }/>  
-            <Route path= {'/organization/' + state.org_id + '/members'} element= {
-                <OrgMemberPage org_id= {state.org_id} MemberStatus= {state.MemberStatus}  />
-            } /> */}
-            {/* <Route path= '/chat' render= {(props) => (
-                <OrgChat {...props} org_id= {state.org_id} />
-            )}/> */}
-
             <Route path= '/orgHome' element={
-                <OrgHomePage org_id= {state.org_id} MemberStatus= {state.MemberStatus}/>
+                <OrgHomePage org_id= {state.org_id} />
             } />
             <Route path= '/announcements' element= {
-                <OrgAnnouncementPage org_id= {state.org_id} MemberStatus= {state.MemberStatus} />
+                <OrgAnnouncementPage org_id= {state.org_id} />
             } />
             <Route path ='/events' element= {
-                <OrgEventPage org_id= {state.org_id} MemberStatus= {state.MemberStatus}/>
+                <OrgEventPage org_id= {state.org_id}/>
             }/>  
             <Route path= '/members' element= {
-                <OrgMemberPage org_id= {state.org_id} MemberStatus= {state.MemberStatus}  />
+                <OrgMemberPage org_id= {state.org_id} />
             } /> 
             
         </Routes>
@@ -146,13 +132,15 @@ export function OrgPageElements({
 // };
 
 const mapStateToProps = createStructuredSelector({
-  loggedIn: makeSelectLoggedIn()
+  loggedIn: makeSelectLoggedIn(),
+  MemberStatus: makeSelectMemberStatus()
 });
 
 export function mapDispatchToProps(dispatch) {
   return {
 
     onChangeLoginStatus: () => dispatch(changeLoginStatus()),
+    onSetMemeberStatus: (evt) => dispatch(setMemberStatus(evt))
 
   };
 }

@@ -29,7 +29,7 @@ import Section from './Section';
 import messages from './messages';
 import { loadRepos } from '../App/actions';
 import { changeUsername, changeLoginStatus } from './actions';
-import { makeSelectUsername, makeSelectLoggedIn } from './selectors';
+import { makeSelectUsername, makeSelectLoggedIn, makeSelectMemberStatus } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import {Link } from 'react-router-dom'
@@ -171,7 +171,8 @@ const submitForm = (e)=> {
 // };
 
 const mapStateToProps = createStructuredSelector({
-  loggedIn: makeSelectLoggedIn()
+  loggedIn: makeSelectLoggedIn(),
+  MemberStatus: makeSelectMemberStatus()
 });
 
 export function mapDispatchToProps(dispatch) {

@@ -19,5 +19,12 @@ const makeSelectLoggedIn = () =>
     homeState => homeState.loggedIn,
   );
 
+const makeSelectMemberStatus = () =>
+  createSelector(
+    selectHome,
+    homeState => homeState.MemberStatus,
+  );
 
-export { selectHome, makeSelectUsername , makeSelectLoggedIn};
+
+export { selectHome, makeSelectUsername , makeSelectLoggedIn, makeSelectMemberStatus};
+
