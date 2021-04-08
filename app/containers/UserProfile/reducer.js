@@ -23,6 +23,9 @@ const homeReducer = (state = initialState, action) =>
         // Delete prefixed '@' from the github username
         draft.username = action.username.replace(/@/gi, '');
         break;
+      case 'CHANGE_LOGIN_STATUS':
+        draft.loggedIn = !state.loggedIn
+        break
     }
   });
 

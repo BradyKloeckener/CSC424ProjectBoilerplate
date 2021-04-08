@@ -30,3 +30,10 @@ export function changeUsername(username) {
     username,
   };
 }
+export const changeLoginStatus = ()=>{
+
+   
+  return({
+      type: 'CHANGE_LOGIN_STATUS',
+  })
+}

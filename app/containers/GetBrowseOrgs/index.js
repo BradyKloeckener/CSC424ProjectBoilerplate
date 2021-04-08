@@ -73,14 +73,6 @@ export function GetBrowseOrgs({
   )
 }
 
-// HomePage.propTypes = {
-//   loading: PropTypes.bool,
-//   error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
-//   repos: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
-//   onSubmitForm: PropTypes.func,
-//   username: PropTypes.string,
-//   onChangeUsername: PropTypes.func,
-// };
 
 const mapStateToProps = createStructuredSelector({
   loggedIn: makeSelectLoggedIn()

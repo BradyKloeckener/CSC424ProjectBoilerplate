@@ -52,11 +52,17 @@ export function OrgHomePage({
   const [state, setState]= useState({name: '', location: '', about: '', error: '', success: ''})
 
   useEffect(() => {
+    console.log('org_id Line 55: ', org_id)
+    if(org_id === ''){
+      return
+    }
+    console.log('org_id: ', org_id)
+
     fetch('http://localhost:3000/getOrgHome', {
         method: 'POST',
         credentials: 'include',
         headers: {
-          'Content-Type': 'application/jspm'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           id: org_id
@@ -68,7 +74,7 @@ export function OrgHomePage({
         setState({name: data.name, location: data.location, about: data.about})
       }
     })
-  }, []);
+  }, [org_id]);
 
 
 

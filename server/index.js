@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser')
 const validator = require('express-validator')
 const mongoose = require('mongoose')
 const path = require('path')
+const fetch = require('node-fetch')
 const Organization = require('./models/organization.model')
 const User = require('./models/user.model')
 
@@ -23,6 +24,7 @@ const { resolve } = require('path');
 const { element } = require('prop-types');
 const { stat } = require('fs');
 const { find } = require('./models/user.model');
+const { response } = require('express');
 const app = express();
 
 // If you need a backend, e.g. an API, add your custom backend-specific middleware here
@@ -139,7 +141,7 @@ mongoose.connection.on('connected', ()=> {
     const createUser = (req, res)=>{
     
         //{name, email, password, confirmPassword, error}
-        //if no errors set req.session.loggedin = true and req.session.userId = the new id of the user
+
         let name = req.body.name
         let email = req.body.email
         let password = req.body.password
@@ -229,24 +231,62 @@ mongoose.connection.on('connected', ()=> {
         })
         //log error to file and send general error
     }
-    const getAllOrgs = (req,res) => {
-
-
+    
+    const getAllOrgs = async (req,res) => {
 
         const query = Organization.find({}).select('name location') 
-    
-    
+        const user = req.cookies.currentUser
+        
         query.exec((err,result)=>{
             if(err){
                 console.log(err)
             }else{
-                //delete result._id
-                res.send(result)
+                let suggestions
+                if(user){
+                    Organization.find({}).select('_id').exec((err, orgs)=>{
+                        User.find({}).select('OrganizationsJoined').exec((err, joinedOrgs)=>{
+                            if(err){
+                                console.log(err)
+                                return
+                            }
+                            User.find({}).select('email').exec(async(err, userEmails)=>{
+                                
+                                    if(err){
+                                        console.log(err)
+                                        return
+                                    }
+                                    suggestions = await fetch('http://localhost:5000/flask', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({user: user, orgs: orgs, joinedOrgs: joinedOrgs, userEmails: userEmails }),
+                                })
+                            })
+
+                        })
+                    })
+                        // const test = await fetch('http://localhost:5000/flask2', {
+                        // method: 'POST',
+                        // headers: {
+                        //     'Content-Type': 'application/json',
+                        // },
+                        // body: JSON.stringify({request: 'Server Request to /flask2' }),
+                        // })
+
+                        //console.log( await suggestions.text())
+                        // console.log(await test.text())
+                }
+            
             }
+            //else{
+                res.send(result)
+            //}
         })
     }
+    
 
-    const getUserOrgs = async (req, res)=>{
+    const getUserOrgs = async (req, res) =>{
 
 
         const query = User.findOne({email: req.cookies.currentUser}).select('OrganizationsJoined') 
@@ -402,7 +442,7 @@ mongoose.connection.on('connected', ()=> {
     }
     const getOrgHome =(req, res)=>{
         const id = req.body.id
-        console.log('req.body: ', req.body)
+
         let query = Organization.findOne({_id: id}).select('name location about')
 
         query.exec((err, org)=>{

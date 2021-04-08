@@ -29,7 +29,7 @@ import Input from './Input';
 import Section from './Section';
 import messages from './messages';
 import { loadRepos } from '../App/actions';
-import { changeUsername } from './actions';
+import { changeUsername, changeLoginStatus } from './actions';
 import { makeSelectUsername, makeSelectLoggedIn} from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -37,34 +37,44 @@ import saga from './saga';
 const key = 'home';
 
 export function UserProfile({
-  username,
-  loading,
-  error,
-  repos,
-  onSubmitForm,
+  
   loggedIn,
-  onChangeUsername,
+  onChangeLoginStatus
 }) {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
   useEffect(() => {
-    // When initial state username is not null, submit the form to load repos
-    if (username && username.trim().length > 0) onSubmitForm();
   }, []);
 
-  const reposListProps = {
-    loading,
-    error,
-    repos,
-  };
+  const logout = (e)=> {
+    e.preventDefault()
+    fetch('http://localhost:3000/clearCookie', {
+      method: 'POST',
+      credentials: 'include'
+    })
+    .then(data =>{
+      if(loggedIn === true){
+        onChangeLoginStatus()
+      }
+    })
+  }
 
-  if(!loggedIn){
-    <Redirect to= '/'/>
+
+  let logOutButton 
+  if(loggedIn){
+    logOutButton = <button onClick= {logout}>Log Out</button>
+  }else{
+    logOutButton = <div></div>
   }
   return (
     
-   <h2>This is where a user would see their profile</h2>
+    <div>
+      <h2>This is where a user would see their profile</h2>
+      {logOutButton}
+    </div>
+   
+
   );
 }
 
@@ -89,10 +99,6 @@ export function mapDispatchToProps(dispatch) {
   return {
 
     onChangeLoginStatus: () => dispatch(changeLoginStatus()),
-    onSubmitForm: evt => {
-      if (evt !== undefined && evt.preventDefault) evt.preventDefault();
-      //dispatch(loadRepos());
-    },
   };
 }
 
