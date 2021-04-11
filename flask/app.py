@@ -2,6 +2,7 @@ from flask import Flask
 from flask import request
 import pandas as pd
 import numpy as np
+import scipy.spatial
 
 app = Flask(__name__)
 
@@ -10,33 +11,20 @@ def index():
     content = request.get_json()
 
     #print(content)
-        
+    user = content['user']
     orgDF = pd.json_normalize(content, record_path='orgs')
     joinedDF = pd.json_normalize(content, record_path= 'joinedOrgs')
     emailsDF = pd.json_normalize(content, record_path= 'userEmails')
 
 
-    # for joined in userDF['email','OrganizationsJoined']:
-    #     for org in orgDF['_id']:
-    #         for item in joined:
-    #             if org == item['org_id']:
-    #                     print('match ' + org + ' ' + item['org_id'] + ' email: ' + email)
-    #     #                 joinedDF[]
-
-
-    print(orgDF.to_string()+ '\n')
-    print(emailsDF.to_string()+ '\n')
-    print(joinedDF.to_string()+ '\n')     
 
     values = []
 
-    print(values)
-    print('\n')
 
     #print(df.to_string() + '\n')
 
     # Assign 1s in places where the user has joined the organization and 0 if not
-    #create an array that can later be cast to a pandas dataframe
+    # create an array that can later be cast to a pandas dataframe
     i = 0
     for joined in joinedDF['OrganizationsJoined']:
         email = emailsDF.at[i, 'email']
@@ -55,19 +43,33 @@ def index():
         values.append(obj)
         i += 1
 
-
-
-
     df = pd.DataFrame(values)    
     df = df.set_index('email')
-        
+
     print(df.to_string() + '\n')
-    #print(userDF.to_string())
 
-    #print(df2.to_string())
+    #jaccard distance = TT/(TT + TF + FT)
+    #Calculate the similarity between users
+    # The closer to 0 the more similar two users are 1 being no similarity
+    jaccard = scipy.spatial.distance.cdist(df, df, metric= 'jaccard')
 
+    userDistance = pd.DataFrame(jaccard, columns= df.index.values, index=df.index.values)
+    print(userDistance)
 
-    #print(df.userData + '\n')
+    #For each user create a of all the other users ordered from most similar to least similar
+    userRankings = {}
+
+    for u in userDistance.columns:
+        distance = userDistance[u].nsmallest(len(userDistance))
+        data = {u: [i for i in distance.index if i != u]}
+        userRankings.update(data)
+    
+
+    print(userRankings)
+    print(user, userRankings[user])
+    
+
+    
     
     return 'Flask Server Response http://localhost:5000/flask'
 
