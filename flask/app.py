@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import request
+from flask import jsonify
 import pandas as pd
 import numpy as np
 import scipy.spatial
@@ -61,17 +62,30 @@ def index():
 
     for u in userDistance.columns:
         distance = userDistance[u].nsmallest(len(userDistance))
+
         data = {u: [i for i in distance.index if i != u]}
         userRankings.update(data)
     
 
-    print(userRankings)
-    print(user, userRankings[user])
-    
 
+
+    recommended = []
+    for neighbor in userRankings:
+        for o in df.columns:
+            if(df.loc[neighbor, o] == 1 and df.loc[user, o] == 0):
+                if len(recommended) == 3:
+                    return jsonify(recommended)
+                if o not in recommended:
+                    recommended.append(o)
+
+           # if df[neighbor][o] == 1 and df[user][o])==0
+    #print(userRankings)
+  
+    print(recommended)
+    print(len(recommended))
+    # for user in userRankings
     
-    
-    return 'Flask Server Response http://localhost:5000/flask'
+    return jsonify(recommended)
 
 # @app.route('/flask2', methods = ['POST'])
 # def test():

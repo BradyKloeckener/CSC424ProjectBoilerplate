@@ -46,7 +46,7 @@ export function GetBrowseOrgs({
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
-  const [state, setState] = useState({orgs:[] })
+  const [state, setState] = useState({ rec: [], orgs:[] })
 
   useEffect(() => {
 
@@ -55,24 +55,43 @@ export function GetBrowseOrgs({
     })
     .then(res => res.json())
     .then(data =>{
-        setState({...state, orgs:data})
+        if(data.rec){
+          setState({...state, rec: data.rec, orgs: data.orgs})
+        }else{
+          setState({...state, orgs: data.orgs})
+        }
     })
   }, []);
 
+  console.log('recommended: ', state.rec)
+  console.log('orgs', state.orgs)
+  let recommendations
 
+  if(state.rec.length != 0){
+    recommendations = (
+      <div>
+        <h4>Recommended For You</h4>
+        <RenderOrgCards orgs = {state.rec} />
+      </div>
+    )
+  }
+  
+  
 
   if(state.orgs.length === 0){
     return(
         <p>There are no organizations registered yet. Be the first to register your orgaization!!!</p>
     )
   }
+
   return(
       <div>  
+          {recommendations}
+          <h4>All Organizations</h4>
           <RenderOrgCards orgs= {state.orgs}/>    
       </div>
   )
 }
-
 
 const mapStateToProps = createStructuredSelector({
   loggedIn: makeSelectLoggedIn()

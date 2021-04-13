@@ -262,6 +262,16 @@ mongoose.connection.on('connected', ()=> {
                                     },
                                     body: JSON.stringify({user: user, orgs: orgs, joinedOrgs: joinedOrgs, userEmails: userEmails }),
                                 })
+                                Organization.find({'_id': {'$in': await suggestions.json()}}).select('name location').exec((err,recOrgs)=>{
+
+                                    if(err){
+                                        console.log(err)
+                                    }else{
+                                        console.log(recOrgs)
+                                        res.send({rec: recOrgs, orgs: result})
+                                    }
+
+                                })
                             })
 
                         })
@@ -277,11 +287,11 @@ mongoose.connection.on('connected', ()=> {
                         //console.log( await suggestions.text())
                         // console.log(await test.text())
                 }
-            
+                else{
+                    res.send({orgs: result})
+                }
             }
-            //else{
-                res.send(result)
-            //}
+            
         })
     }
     
