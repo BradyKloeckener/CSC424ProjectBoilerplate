@@ -6,8 +6,6 @@
 
 import React, { useEffect, memo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
@@ -15,62 +13,58 @@ import { Redirect } from 'react-router-dom'
 
 import { useInjectReducer } from 'utils/injectReducer';
 import { useInjectSaga } from 'utils/injectSaga';
-import {
-  makeSelectRepos,
-  makeSelectLoading,
-  makeSelectError,
-} from 'containers/App/selectors';
-import H2 from 'components/H2';
-import ReposList from 'components/ReposList';
-import AtPrefix from './AtPrefix';
-import CenteredSection from './CenteredSection';
-import Form from './Form';
-import Input from './Input';
-import Section from './Section';
-import messages from './messages';
-import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
-import { makeSelectUsername, makeSelectLoggedIn } from './selectors';
+import { makeSelectLoggedIn, makeSelectMemberStatus } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
 const key = 'home';
 
 export function Member({
-  member
+  org_id,
+  member,
+  MemberStatus,
 }) {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
-//   [state, setState] = useState({showContent: false})
- 
-//   const toggleContent = ()=>{
+  
+  const [state, setState] = useState({user_email: member.user_email, status: member.status})
+  const promoteMember = () =>{
 
-//     setState({...state, showContent: !state.showContent})
-// }
+    if(MemberStatus == 'Leader'){
+      fetch('http://localhost:3000/promoteMember', {
+          method: "POST",
+          headers: {
+              'Content-type': 'application/json'
+          },
+          body: JSON.stringify({
+              org_id: org_id,
+              member: member.user_email
+          })
+        })
+      .then(res => res.json())
+      .then(data =>{
+        if(data.success){ 
 
-
-   
-
-    // let Content
-    // if(this.state.showContent){
-    //     Content = ( 
-    //     <div>
-    //         <p>{event.address}</p>
-    //         <p>{event.date}</p>
-    //         <p>{event.time}</p>
-    //         <p>{event.description}</p>
-
-    //     </div>
-        
-    //     )
-    // }else{
-    //     Content = <div></div>
-    // }
+          setState({...state, status: 'Leader'})
+        }
+      })
+    }
+  }
+  let promoteButton
+   if(MemberStatus == 'Leader' && state.status != 'Leader'){
+     promoteButton = <button className= 'btn btn-primary' onClick= {promoteMember} >Promote to Leader</button>
+   }else{
+     promoteButton = <div></div>
+   }
+    
     return(
 
       <div>
-          <h4> {member.user_email}</h4>
+          <h6> {state.user_email}</h6>
+          <p> {state.status}</p>
+          {promoteButton}
       </div>
 
   )
@@ -90,22 +84,16 @@ export function Member({
 // };
 
 const mapStateToProps = createStructuredSelector({
-  // repos: makeSelectRepos(),
-  // username: makeSelectUsername(),
-  // loading: makeSelectLoading(),
-  // error: makeSelectError(),
-  loggedIn: makeSelectLoggedIn()
+
+  loggedIn: makeSelectLoggedIn(),
+  MemberStatus: makeSelectMemberStatus()
 });
 
 export function mapDispatchToProps(dispatch) {
   return {
 
-    onChangeLoginStatus: () => dispatch(changeLoginStatus()),
-    onSubmitForm: evt => {
-      if (evt !== undefined && evt.preventDefault) evt.preventDefault();
-      //dispatch(loadRepos());
-    },
-  };
+    onChangeLoginStatus: () => dispatch(changeLoginStatus()),   
+  }
 }
 
 const withConnect = connect(

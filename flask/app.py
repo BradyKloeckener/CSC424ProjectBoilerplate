@@ -47,7 +47,6 @@ def index():
     df = pd.DataFrame(values)    
     df = df.set_index('email')
 
-    print(df.to_string() + '\n')
 
     #jaccard distance = TT/(TT + TF + FT)
     #Calculate the similarity between users
@@ -55,9 +54,9 @@ def index():
     jaccard = scipy.spatial.distance.cdist(df, df, metric= 'jaccard')
 
     userDistance = pd.DataFrame(jaccard, columns= df.index.values, index=df.index.values)
-    print(userDistance)
 
-    #For each user create a of all the other users ordered from most similar to least similar
+
+    #For each user create a list of all the other users ordered from most similar to least similar
     userRankings = {}
 
     for u in userDistance.columns:
@@ -78,22 +77,10 @@ def index():
                 if o not in recommended:
                     recommended.append(o)
 
-           # if df[neighbor][o] == 1 and df[user][o])==0
-    #print(userRankings)
-  
-    print(recommended)
-    print(len(recommended))
-    # for user in userRankings
+ 
     
     return jsonify(recommended)
 
-# @app.route('/flask2', methods = ['POST'])
-# def test():
-#     content = request.get_json()
-#     print(content)
-#     return 'Flask Server Response http://localhost:5000/flask2'
 
-
-print('Hello from Flask')
-if(__name__ == "__manin__"):
+if(__name__ == "__main__"):
     app.run(port=5000, debug=True, threaded=True)

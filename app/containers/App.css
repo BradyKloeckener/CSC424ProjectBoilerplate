@@ -88,10 +88,15 @@ html, body {
 .send-message-form input::placeholder {
     color: black;
 }
-
-.orgCard {
-    padding: 25px;
+#orgCardDiv {
     width: 25%;
+}
+.orgCard {
+    padding: 10px;
+    width: 50%;
+}
+.card-body{
+    padding-bottom: 25px;
 }
 
 .formcontent {

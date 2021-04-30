@@ -9,7 +9,7 @@ const path = require('path')
 const fetch = require('node-fetch')
 const Organization = require('./models/organization.model')
 const User = require('./models/user.model')
-
+const config = require('./config.json')
 const logger = require('./logger');
 
 const argv = require('./argv');
@@ -25,6 +25,7 @@ const { element } = require('prop-types');
 const { stat } = require('fs');
 const { find } = require('./models/user.model');
 const { response } = require('express');
+const { ValidationError } = require('webpack');
 const app = express();
 
 // If you need a backend, e.g. an API, add your custom backend-specific middleware here
@@ -47,23 +48,13 @@ const prettyHost = customHost || 'localhost';
 app.use(express.json())
 app.use(cookieParser())
 
-// app.use(orgRouter)
-// app.use(usersRouter)
-
-//app.use(express.static(path.join(__dirname, 'build')))
-
-
-// app.use(session({
-//     secret:'lafjekjfo39rt0t4-))_R03i9rt4#REW"QR#', // value here can be anything
-//     resave: true,
-//     saveUninitialized: true
-// }))
 
 const buildPath = __dirname + '/build/'
 
 app.use(express.static(buildPath))
 
-const url = "mongodb+srv://admin:USM123@cluster0.wl7k0.mongodb.net/CSCProjectDatabase?retryWrites=true&w=majority";
+// const url = "mongodb+srv://admin:USM123@cluster0.wl7k0.mongodb.net/CSCProjectDatabase?retryWrites=true&w=majority";
+const url = config.DBurl
 
 
 mongoose.connect(url, {useNewUrlParser: true, useUnifiedTopology: true})
@@ -74,7 +65,7 @@ mongoose.connection.on('disconnect', ()=> {
 })
 mongoose.connection.on('connected', ()=> {
 
-
+    //Listen and handle Request
     
 
     const checkLoginStatus = (req, res)=>{
@@ -267,7 +258,6 @@ mongoose.connection.on('connected', ()=> {
                                     if(err){
                                         console.log(err)
                                     }else{
-                                        console.log(recOrgs)
                                         res.send({rec: recOrgs, orgs: result})
                                     }
 
@@ -467,6 +457,7 @@ mongoose.connection.on('connected', ()=> {
     const joinOrg = (req,res)=>{
         const id = req.body.id
         const user_email = req.cookies.currentUser
+
         
         Organization.findByIdAndUpdate({_id: id},
             {'$push': {members: {user_email: user_email, status: 'Member'}}}, (err)=>{
@@ -486,6 +477,69 @@ mongoose.connection.on('connected', ()=> {
                 }
                
             })
+    }
+    const leaveOrg = async (req, res) =>{
+
+        const id = req.body.id
+        const user_email = req.cookies.currentUser
+
+       let OrgFound = await Organization.findOne({_id: id, members: {'$elemMatch': { user_email: user_email, status: 'Member' }}})
+
+        if(OrgFound){
+        Organization.findByIdAndUpdate({_id: id},
+            {'$pull': {members: {user_email: user_email }}}, (err) => {
+
+                if(err){
+                    console.log(err)
+                    res.send({error: 'Could not remove you from this organization'})
+                }else{
+                    User.findOneAndUpdate({email: user_email},
+                    {'$pull': {OrganizationsJoined:{org_id: id}}}, (err) =>{
+                        if(err){
+                            console.log(err)
+                            res.send({error: 'Could not remove you from this organization'})
+                        }
+                        res.send({success: 'Organization Left'})
+                    })
+                }
+            }
+            )
+        }else{
+            res.send({error: 'Could not remove you from this organization'})
+        }
+    }
+
+
+    const promoteMember = async (req, res)=>{
+        //This function is used to change the status of a Member from 'Member' to 'Leader'
+        // in the Organizatio document
+
+        let org_id = req.body.org_id
+        let promotedMemberEmail = req.body.member
+
+        let OrgFound = await Organization.findOne({_id: org_id, members: {'$elemMatch':{ user_email: promotedMemberEmail, status: 'Member'}}})
+
+        
+        if(OrgFound){
+            console.log('PROMOTING MEMBER NOW \n')
+            Organization.findOneAndUpdate(
+                {_id: org_id, members: {'$elemMatch': {user_email: promotedMemberEmail, status: 'Member'}}},
+                {
+                    '$set': {'members.$': {user_email: promotedMemberEmail, status: 'Leader'}}
+                },
+                (err)=>{
+                    if(err){
+                        console.log(err)
+                        res.send({error: 'Could not promote this member'})
+                    }else{
+                        res.send({success: 'Member Promoted'})
+                    }
+                }   
+            )
+        }else{
+            res.send({error: 'Could not promote this member'})
+        }
+
     }
     // app.get('/',(req, res)=>{ 
         
@@ -510,7 +564,7 @@ mongoose.connection.on('connected', ()=> {
     
     
     app.post('/registerOrgSubmit', [
-        validator.check('name').isLength({min: 3}).trim().escape().withMessage('Name must be at least 3 characters long'),
+        validator.check('name').isLength({min: 3}).trim().escape(),
         validator.check('location').trim().escape(),
         validator.check('about').trim().escape()
     ], createOrg)
@@ -545,7 +599,13 @@ mongoose.connection.on('connected', ()=> {
     app.post('/getMembers', [validator.check('id').trim().escape()], getMembers)
 
     app.post('/onJoinOrg', [validator.check('id').trim().escape()], joinOrg)
+    app.post('/onLeaveOrg', [validator.check('id').trim().escape()], leaveOrg)
 
+
+    app.post('/promoteMember', [
+        validator.check('id').trim().escape(),
+        validator.check('member').isEmail().normalizeEmail().trim().escape(),
+    ], promoteMember)
 
     // app.get('/', (req, res)=>{
 

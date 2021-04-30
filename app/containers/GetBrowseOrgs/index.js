@@ -14,22 +14,8 @@ import { createStructuredSelector } from 'reselect';
 
 import { useInjectReducer } from 'utils/injectReducer';
 import { useInjectSaga } from 'utils/injectSaga';
-import {
-  makeSelectRepos,
-  makeSelectLoading,
-  makeSelectError,
-} from 'containers/App/selectors';
-import H2 from 'components/H2';
-import ReposList from 'components/ReposList';
-import AtPrefix from './AtPrefix';
-import CenteredSection from './CenteredSection';
-import Form from './Form';
-import Input from './Input';
-import Section from './Section';
-import messages from './messages';
-import { loadRepos } from '../App/actions';
-import { changeUsername, changeLoginStatus  } from './actions';
-import { makeSelectUsername, makeSelectLoggedIn } from './selectors';
+import { changeLoginStatus  } from './actions';
+import { makeSelectLoggedIn } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import RenderOrgCards from 'containers/RenderOrgCards/Loadable';
@@ -63,8 +49,7 @@ export function GetBrowseOrgs({
     })
   }, []);
 
-  console.log('recommended: ', state.rec)
-  console.log('orgs', state.orgs)
+
   let recommendations
 
   if(state.rec.length != 0){

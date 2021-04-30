@@ -15,7 +15,8 @@
  *    }
  */
 
-import { CHANGE_USERNAME } from './constants';
+import { CHANGE_LOGIN_STATUS, CHANGE_MEMBER_STATUS } from "./constants"
+
 
 /**
  * Changes the input field of the form
@@ -24,12 +25,7 @@ import { CHANGE_USERNAME } from './constants';
  *
  * @return {object} An action object with a type of CHANGE_USERNAME
  */
-export function changeUsername(username) {
-  return {
-    type: CHANGE_USERNAME,
-    username,
-  };
-}
+
 //Example from react-boilerplate
 // export function changeUsername(username) {
 //     return {
@@ -39,17 +35,16 @@ export function changeUsername(username) {
 //   }
 
 export const changeLoginStatus = ()=>{
-
-   
   return({
-      type: 'CHANGE_LOGIN_STATUS',
+      type: CHANGE_LOGIN_STATUS,
   })
 }
-export const makeMember = () =>{
-
+export const changeMemberStatus = (newStatus) =>{
   return({
-    type: 'MAKE_MEMBER',
+    type: CHANGE_MEMBER_STATUS,
+    newStatus,
   })
 }
+
 
 //export default changeLoginStatus

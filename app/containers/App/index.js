@@ -56,7 +56,6 @@ export default function App() {
           <Route path= '/login' element= {<LoginPage/>} /> 
           <Route path= '/signup' element= {<SignUpPage/>} /> 
           <Route exact path= '/organization/:org_id/*' element= {<OrgPageElements/>} /> 
-          
       </Routes>
       <GlobalStyle />
     </AppWrapper>
