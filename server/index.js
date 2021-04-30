@@ -53,7 +53,7 @@ const buildPath = __dirname + '/build/'
 
 app.use(express.static(buildPath))
 
-// const url = "mongodb+srv://admin:USM123@cluster0.wl7k0.mongodb.net/CSCProjectDatabase?retryWrites=true&w=majority";
+
 const url = config.DBurl
 
 
