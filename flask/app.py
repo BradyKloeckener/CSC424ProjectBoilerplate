@@ -11,7 +11,7 @@ app = Flask(__name__)
 def index():
     content = request.get_json()
 
-
+    #print(content)
     user = content['user']
     orgDF = pd.json_normalize(content, record_path='orgs')
     joinedDF = pd.json_normalize(content, record_path= 'joinedOrgs')
@@ -20,6 +20,9 @@ def index():
 
 
     values = []
+
+
+    #print(df.to_string() + '\n')
 
     # Assign 1s in places where the user has joined the organization and 0 if not
     # create an array that can later be cast to a pandas dataframe
@@ -64,8 +67,7 @@ def index():
     
 
 
-    # Loop ovet the list of rankings and add to recommended an organization
-    # where  the similar user has joined and the current user has not
+
     recommended = []
     for neighbor in userRankings:
         for o in df.columns:
@@ -76,7 +78,7 @@ def index():
                     recommended.append(o)
 
  
-    #Send up to 3 recommended orgs to express 
+    
     return jsonify(recommended)
 
 
