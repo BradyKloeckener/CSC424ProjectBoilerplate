@@ -10,4 +10,3 @@
  */
 
 export const CHANGE_LOGIN_STATUS = 'boilerplate/OrgHomePage/CHANGE_LOGIN_STATUS';
-export const CHANGE_MEMBER_STATUS = 'boilerplate/OrgHomePage/CHANGE_MEMBER_STATUS';

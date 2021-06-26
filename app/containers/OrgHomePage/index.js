@@ -5,16 +5,18 @@
  */
 
 import React, { useEffect, memo, useState} from 'react';
-
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import { useInjectReducer } from 'utils/injectReducer';
 import { useInjectSaga } from 'utils/injectSaga';
-import { changeLoginStatus, changeMemberStatus } from './actions';
-import { makeSelectLoggedIn, makeSelectMemberStatus } from './selectors';
+import { changeLoginStatus } from './actions';
+import { setMemberStatus } from '../OrgPageElements/actions';
+import { makeSelectLoggedIn } from './selectors';
+import { makeSelectMemberStatus } from '../OrgPageElements/selectors';
 import reducer from './reducer';
 import saga from './saga';
+
 
 
 
@@ -26,7 +28,7 @@ const key = 'home';
 export function OrgHomePage({
  org_id,
  MemberStatus,
- onChangeMemberStatus
+ onSetMemberStatus
 }) {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
@@ -72,7 +74,7 @@ export function OrgHomePage({
       if(data.error){
         setState({...state, error: data.error})
       }else{
-        onChangeMemberStatus('Member')
+        onSetMemberStatus('Member')
         setState({...state, success: 'You have successfully joined this organization'})
         
       }
@@ -96,7 +98,7 @@ export function OrgHomePage({
       if(data.error){
         setState({...state, error: data.error})
       }else{
-        onChangeMemberStatus('None')
+        onSetMemberStatus('None')
         setState({...state, success: 'You have left the organization'})
        
       }
@@ -149,9 +151,8 @@ export function mapDispatchToProps(dispatch) {
   return {
 
     onChangeLoginStatus: () => dispatch(changeLoginStatus()),
-    onChangeMemberStatus: (newStatus)=> {
-      console.log('dispatching action')
-      dispatch(changeMemberStatus(newStatus))
+    onSetMemberStatus: (newStatus)=> {
+      dispatch(setMemberStatus(newStatus))
     }
   };
 }

@@ -39,12 +39,7 @@ export const changeLoginStatus = ()=>{
       type: CHANGE_LOGIN_STATUS,
   })
 }
-export const changeMemberStatus = (newStatus) =>{
-  return({
-    type: CHANGE_MEMBER_STATUS,
-    newStatus,
-  })
-}
+
 
 
 //export default changeLoginStatus

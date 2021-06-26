@@ -24,9 +24,6 @@ const homeReducer = (state = initialState, action) =>
       case CHANGE_LOGIN_STATUS: 
         draft.loggedIn = !state.loggedIn
         break
-      case CHANGE_MEMBER_STATUS:
-        draft.MemberStatus = action.newStatus
-        break
     }
   });
 
