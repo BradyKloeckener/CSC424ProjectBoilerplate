@@ -21,11 +21,9 @@ const ngrok =
     ? require('ngrok')
     : false;
 const { resolve } = require('path');
-const { element } = require('prop-types');
-const { stat } = require('fs');
-const { find } = require('./models/user.model');
-const { response } = require('express');
-const { ValidationError } = require('webpack');
+
+
+
 const app = express();
 
 // If you need a backend, e.g. an API, add your custom backend-specific middleware here
@@ -57,6 +55,8 @@ app.use(express.static(buildPath))
 const url = config.DBurl
 
 
+
+//database connections
 mongoose.connect(url, {useNewUrlParser: true, useUnifiedTopology: true})
 mongoose.connection.on('error', ()=> console.log('Error Connecting to Datbase'))
 mongoose.connection.on('disconnect', ()=> {
@@ -68,6 +68,8 @@ mongoose.connection.on('connected', ()=> {
     //Listen and handle Request
     
 
+    // check if a cookie is present 
+    // this is to check if a user is logged in when the page loads
     const checkLoginStatus = (req, res)=>{
 
        
@@ -86,20 +88,12 @@ mongoose.connection.on('connected', ()=> {
         res.send({response: 'cookie cleared'})
     }
 
-    const authenticateUser =(req, res)=>{
-    
-        //Check the database for the email 
-        // if that email exists make sure the entered password 
-        //is the same as the password in the database
-        //{email, password}
-        //if those checks don't pass send a response of format {error: 'string'}
-        // I am not sure how to keep track of if someone is logged in or not 
 
-        // make sure that the email exist in the database
-        // compare the password field of the request to the password in the database
-        //
-    
-        //cookies
+    // the following function is used to authenticate a user when they log in 
+    // the bcrypt module is used to compare the passwords and if a successful log in occurs
+    // a cookie is sent to the client containing the email of the current user
+
+    const authenticateUser =(req, res)=>{
     
         let email = req.body.email
         let password = req.body.password
@@ -129,9 +123,14 @@ mongoose.connection.on('connected', ()=> {
         })    
     }
 
+
+    // function called when a user creates an account 
+    // checks if email is already being used
+    // if not hash and salt the password using bcrypt
+    // store the data in the User document
     const createUser = (req, res)=>{
     
-        //{name, email, password, confirmPassword, error}
+
 
         let name = req.body.name
         let email = req.body.email
@@ -186,10 +185,13 @@ mongoose.connection.on('connected', ()=> {
         })  
     }
 
+    // called when a user submits the form on the register organization page
+    // a new organization will be created with the current user having 'Leader' status in
+    // the organization allowing them to post events and announcements, promote other members to leaders etc.
     const createOrg = (req,res)=> {
 
         //Insert this data to the database to create a new club
-        //{name, location, about}
+
         const name = req.body.name
         const location = req.body.location
         const about = req.body.about
@@ -220,8 +222,12 @@ mongoose.connection.on('connected', ()=> {
             res.send({error: 'There has been a server error'})
             
         })
-        //log error to file and send general error
     }
+
+
+    // the following function is used to retrieve the organization data on the browse page
+    // if a user is logged in the organization data will be sent to flask (file  ../flask/app.py) to recommend 
+    // up to 3 organizations for the user
     
     const getAllOrgs = async (req,res) => {
 
@@ -266,16 +272,6 @@ mongoose.connection.on('connected', ()=> {
 
                         })
                     })
-                        // const test = await fetch('http://localhost:5000/flask2', {
-                        // method: 'POST',
-                        // headers: {
-                        //     'Content-Type': 'application/json',
-                        // },
-                        // body: JSON.stringify({request: 'Server Request to /flask2' }),
-                        // })
-
-                        //console.log( await suggestions.text())
-                        // console.log(await test.text())
                 }
                 else{
                     res.send({orgs: result})
@@ -286,6 +282,7 @@ mongoose.connection.on('connected', ()=> {
     }
     
 
+    // Finds the organization that the current user is apart of and sends the name and location of the organization to the client
     const getUserOrgs = async (req, res) =>{
 
 
@@ -313,6 +310,15 @@ mongoose.connection.on('connected', ()=> {
     }
 
 
+    // Gets a users profile data to display on their profile
+    // const getUserProfile = (req, res) => {
+
+
+
+    // }
+
+    // recieves an organization id and the content of the 'Add announcement' form
+    // adds the announcement to the Organization's document
     const createAnnouncement = (req,res) => {
 
         Organization.findByIdAndUpdate({_id: req.body.id},
@@ -326,6 +332,9 @@ mongoose.connection.on('connected', ()=> {
         })
         
     }
+
+    // receives organization Id and the content of the 'Add Event' form 
+    // adds the content to the organization document
     const createEvent =(req, res) => {
 
         Organization.findByIdAndUpdate({_id: req.body.id},{ 
@@ -346,6 +355,8 @@ mongoose.connection.on('connected', ()=> {
                     })
     }
 
+    // Receives and organization Id and sends an array of event objects from the 
+    // organizations events property
     const getEvents = (req,res)=>{
 
       let id = req.body.id
@@ -364,6 +375,8 @@ mongoose.connection.on('connected', ()=> {
 
     }
 
+    // Receives and organization Id and sends an array of announcement objects from the 
+    // organizations announcement property
     const getAnnouncements = (req,res)=>{
 
       let id = req.body.id
@@ -378,9 +391,10 @@ mongoose.connection.on('connected', ()=> {
         res.send(org.announcements)
       })
 
-
-
     }
+
+    // Receives and organization Id and sends an array of member objects from the 
+    // organizations member property
     const getMembers = (req,res)=>{
 
       let id = req.body.id
@@ -394,10 +408,14 @@ mongoose.connection.on('connected', ()=> {
 
         res.send(org.members)
       })
-
-
-
     }
+
+    // Checks if the currentUser is a Member of the Organizations
+    // If no user is logged in send {status:'No User'} to the client
+    // if there is a user logged in:
+    // Not a member send {status: None}
+    // A member but NOT a Leader send {status: 'Member'}
+    // A Leader send {status: Leader}
     const getMemberStatus = (req,res)=>{
 
       let id = req.body.id
@@ -417,7 +435,7 @@ mongoose.connection.on('connected', ()=> {
         if(err){
 
           console.log(err)
-          console.log('Error in member status')
+
           res.send({error:'Internal Server Error'})
           return
         }
@@ -440,6 +458,11 @@ mongoose.connection.on('connected', ()=> {
 
       })
     }
+
+    // Gets basic information of the organization
+    //Organization name location and about sectios 
+    // used to display information on the organization homepage
+    // after clicking a card
     const getOrgHome =(req, res)=>{
         const id = req.body.id
 
@@ -454,6 +477,11 @@ mongoose.connection.on('connected', ()=> {
         })
 
     }
+
+    // Called when a user clicks the join button on the Organization home page
+    // Adds the user to the members array in the organization document with Member status
+    //if done successfully an object is sent to client with success property  {success: 'Message'}
+    // if unsuccessful an object is sent to the client with error property {error: 'Messages'}
     const joinOrg = (req,res)=>{
         const id = req.body.id
         const user_email = req.cookies.currentUser
@@ -478,6 +506,9 @@ mongoose.connection.on('connected', ()=> {
                
             })
     }
+
+    //Removes a member of an organization from the member array in the organization document
+    // Sends an object to client {success: 'Message'} if successful or {error: 'Message'} if unsuccessful
     const leaveOrg = async (req, res) =>{
 
         const id = req.body.id
@@ -510,9 +541,10 @@ mongoose.connection.on('connected', ()=> {
     }
 
 
+     //This function is used to change the status of a Member from 'Member' to 'Leader'
+    // in the Organizatio document
+
     const promoteMember = async (req, res)=>{
-        //This function is used to change the status of a Member from 'Member' to 'Leader'
-        // in the Organizatio document
 
         let org_id = req.body.org_id
         let promotedMemberEmail = req.body.member
@@ -546,6 +578,12 @@ mongoose.connection.on('connected', ()=> {
     //     res.sendFile(path.join(__dirname, 'build', 'index.html'))
     // })
 
+    // Below are all the routes that are used to handle request 
+    // these routes are bound the the function above with the name of the last parameter
+    // to initiate these routes from the client send a fetch request with the corresponding method: GET POST etc
+    // to 'http://localhost:3000/ folled by the string in the first parameter
+
+    // the routes use express validator  middleware to validate and sanitize the input of the request body
     app.post('/checkIfloggedIn', checkLoginStatus)
     app.post('/clearCookie', clearCookie)
     app.post('/loginSubmit',[ 
@@ -572,6 +610,7 @@ mongoose.connection.on('connected', ()=> {
     
     app.post('/getBrowseOrgs', getAllOrgs)
     app.post('/getUserOrgs', getUserOrgs )
+    app.post('/getUseProfile', getUserProfile)
 
     // app.post('/getOrganizationData',[
     //     validator.check('id').trim().escape()
