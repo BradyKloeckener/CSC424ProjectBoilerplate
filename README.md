@@ -14,7 +14,7 @@ We think this is an interesting way for organizations to organize themselves and
 
 This project uses Reactjs on the frontend to create the UI along with Redux to manage the state of the application. 
 On the backend this project uses Expressjs to create a web server and request handlers with Nodejs runtime environment. The recommender system utilizes Flask as well as Pandas and SciPy Python libraries.
-The databse component of our application utilies MongoDB. Mongoose is used to translate objects from Nodejs to their MongoDB representation.
+The databse component of our application utilizes MongoDB. Mongoose is used to translate objects from Nodejs to their MongoDB representation.
 
 ## About The Developers
 
