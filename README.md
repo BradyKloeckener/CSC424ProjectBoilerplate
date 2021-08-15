@@ -1,3 +1,26 @@
+## Project Overview
+This project used the react boilerplate documented below to quicly set up our development environment with webpack/babel etc.
+
+This project was first intended for use by leaders, members, and hopeful members of student organizations. However, it can be used by any group of people looking to stay organized. 
+
+Our goal was to create a platform that gave organization leaders the ability to post events and announcements that are relevant to their respective organizations. Members of the organizaton can then join the organization on the platform and have easy access to all the of the relevant information.
+
+For people who would like to get involved in new organization, we have added the ability to browse all of the organizations and join ones that look interesting.
+These users are also recommended organizations that similar users have joined. The similarity of the users is calculated based on the number of organizations the two users are both members of together.
+
+We think this is an interesting way for organizations to organize themselves and reach new members that they may not otherwise.
+
+## Languages and Technologies Used
+
+This project uses Reactjs on the frontend to create the UI along with Redux to manage the state of the application. 
+On the backend this project uses Expressjs to create a web server and request handlers with Nodejs runtime environment. The recommender system utilizes Flask as well as Pandas and SciPy Python libraries.
+The databse component of our application utilies MongoDB. Mongoose is used to translate objects from Nodejs to their MongoDB representation.
+
+## About The Developers
+
+ This project was developed by a team of 3 student developers as their senior capstone project.
+
+
 <img src="https://raw.githubusercontent.com/react-boilerplate/react-boilerplate-brand/master/assets/banner-metal-optimized.jpg" alt="react boilerplate banner" align="center" />
 
 <br />
